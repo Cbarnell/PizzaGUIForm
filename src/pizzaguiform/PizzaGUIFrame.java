@@ -19,7 +19,7 @@ public class PizzaGUIFrame extends JFrame {
     private ButtonGroup crustGroup;
 
     // Size ComboBox
-    private JComboBox cbSize;
+    private JComboBox<String> cbSize;
 
     // Toppings Checkboxes (Monster theme)
     private JCheckBox chkTentacles;
@@ -83,8 +83,8 @@ public class PizzaGUIFrame extends JFrame {
      * Creates the Center panel featuring Crust options and Toppings arranged side-by-side.
      */
     private JPanel createCenterPanel() {
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JPanel centerPanel1 = new JPanel(new GridLayout(1, 2, 10, 10));
+        centerPanel1.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
         // 1. Crust Panel (Radio Buttons)
         JPanel crustPanel = new JPanel(new GridLayout(3, 1, 5, 5));
@@ -121,10 +121,10 @@ public class PizzaGUIFrame extends JFrame {
         toppingsPanel.add(chkZombieFlesh);
         toppingsPanel.add(chkLavaRocks);
 
-        centerPanel.add(crustPanel);
-        centerPanel.add(toppingsPanel);
+        centerPanel1.add(crustPanel);
+        centerPanel1.add(toppingsPanel);
 
-        return centerPanel;
+        return centerPanel1;
     }
 
     /**
@@ -150,8 +150,8 @@ public class PizzaGUIFrame extends JFrame {
         JButton btnQuit = new JButton("Quit");
 
         btnOrder.addActionListener(new OrderButtonListener());
-        btnClear.addActionListener(e -> clearForm());
-        btnQuit.addActionListener(e -> confirmQuit());
+        btnClear.addActionListener(_ -> clearForm());
+        btnQuit.addActionListener(_ -> confirmQuit());
 
         buttonPanel.add(btnOrder);
         buttonPanel.add(btnClear);
@@ -167,7 +167,7 @@ public class PizzaGUIFrame extends JFrame {
      */
     private class OrderButtonListener implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent event) {
             // Validation: Must select a crust
             String crustType = "";
             if (rbThin.isSelected()) crustType = "Thin Crust";
@@ -175,14 +175,8 @@ public class PizzaGUIFrame extends JFrame {
             else if (rbDeepDish.isSelected()) crustType = "Deep-Dish Crust";
 
             if (crustType.isEmpty()) {
-                try {
-                    JOptionPane.showMessageDialog(PizzaGUIFrame.class.newInstance(),
-                            "Please select a type of crust.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                } catch (InstantiationException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
+                JOptionPane.showMessageDialog(PizzaGUIFrame.this,
+                        "Please select a type of crust.", "Validation Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -191,39 +185,37 @@ public class PizzaGUIFrame extends JFrame {
                     chkDragonScales.isSelected() || chkGorgonVenom.isSelected() ||
                     chkZombieFlesh.isSelected() || chkLavaRocks.isSelected();
             if (!hasTopping) {
-                try {
-                    JOptionPane.showMessageDialog(PizzaGUIFrame.class.newInstance(),
-                            "Please select at least one topping.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                } catch (InstantiationException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
+                JOptionPane.showMessageDialog(PizzaGUIFrame.this,
+                        "Please select at least one topping.", "Validation Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             // Calculate Size & Base Price
             int sizeIndex = cbSize.getSelectedIndex();
-            String sizeName = "";
-            double basePrice = 0.0;
-
+            String sizeName;
+            double basePrice;
             switch (sizeIndex) {
-                case 0:
+                case 0 -> {
                     sizeName = "Small";
                     basePrice = PRICE_SMALL;
-                    break;
-                case 1:
+                }
+                case 1 -> {
                     sizeName = "Medium";
                     basePrice = PRICE_MEDIUM;
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     sizeName = "Large";
                     basePrice = PRICE_LARGE;
-                    break;
-                case 3:
+                }
+                case 3 -> {
                     sizeName = "Super";
                     basePrice = PRICE_SUPER;
-                    break;
+                }
+                default -> {
+                    JOptionPane.showMessageDialog(PizzaGUIFrame.this,
+                            "Please select a valid pizza size.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
 
             // Build Receipt Output
@@ -266,7 +258,7 @@ public class PizzaGUIFrame extends JFrame {
 
             sb.append("\n");
             sb.append(String.format("Sub-total:                         $%6.2f\n", subTotal));
-            sb.append(String.format("Tax (7%):                          $%6.2f\n", tax));
+            sb.append(String.format("Tax (7%%):                          $%6.2f\n", tax));
             sb.append("---------------------------------------------------------------------\n");
             sb.append(String.format("Total:                             $%6.2f\n", total));
             sb.append("=========================================\n");
